@@ -1,0 +1,702 @@
+#vim /etc/selinux/config
+SELINUX=permissive
+:wq
+#systemctl set-default multi-user.target
+TASK 0 a:
+..........
+Cracking Root Password:
+
+i)Press ‘e’ ---> At the time of splash screen display --->
+
+Go to linux16 line (Using Down Arrow) --->
+Press “End” Button--->
+then press spacebar then type	rd.break console=tty1
+
+ii)then press „ctrl + x‟	to continue
+
+#mount -o remount,rw /sysroot
+#chroot	/sysroot
+
+#passwd root
+(Enter given password „redhat‟)
+
+#touch
+
+/.autorelabel
+
+(Don‟t Forget to relabel , required for /etc/shadow relabel)
+ 
+#exit
+#exit
+ 
+(Exit from sysroot jail)
+(Exit from initramfs debug shell, will restart automatically)
+ 
+
+Task 0 b:
+
+After Cracking root password, you will be in CLI Mode (i.e multi-user mode)
+
+Assign Static IP (Below information will be available in Additional Info in Exam)
+
+	IPADDR			         : 172.25.X.11	
+	NETMASK			         : 255.255.255.0		
+	DEFAULT GATEWAY      : 172.25.X.254	
+	NAME SERVER		       : 172.25.254.254		
+	HOST NAME		         : serverX.example.com	(In Exam: station.domainX.example.com)
+	where X in your VM unique number that will vary from student to student.
+	To Assign Static IP and static Hostname	
+	i)	#nmtui	(For Assign IP)	
+	ii)	#nmtui	(To Deactivate and Activate)	
+	iii)	#nmtui	(To Assign Hostname)	
+	After Assigning Static IP and Hostname, To Check:	
+						
+	#hostname					
+	#ip a					
+	#route			            (For Gateway)	
+	#cat /etc/resolv.conf		(For DNS/Nameserver info)	
+                          (or) # nmcli dev show (For Hostname,IP,Gateway,DNS info)
+
+To Check your Machine Connectivity :
+
+#ping	<hostname>
+
+#ping 172.25.X.11	(Self)
+#ping 172.25.X.254	(Gateway)
+#ping 172.25.254.254	(DNS)
+
+(Note: If you fails ,please check Network Configuration once )
+
+Then, Finally
+
+In Exam Web Page
+Click Hyper Link to See your Exam Paper
+
+Click Here to Get the Exam Paper (Link will be provided in Exam)
+
+
+
+Before Doing Exam Tasks take ssh connection from Physical Machine
+
+
+Physical Machine:
+
+Open Terminal:
+
+In Exam --- Applications => System Tools => Terminal In Our LAB --- Applications => Utilities => Terminal
+
+
+$ssh -X root@<vmhostname>
+
+[root@vmhostname ~]#
+
+
+Note: Before executing any Task Please Check Once whether you are in Physical Machine Terminal or Virtual Machine Terminal
+
+
+Task 1: (Read all Questions to find ,Create Repository Question )
+
+This task is very important to install packages
+
+Create Repository
+
+Create Repository for http://content.example.com/rhel7.0/x86_64/dvd
+
+
+In Exam : http://server1.example.com/pub/rhel//Server/
+
+(follow the given path // as it is, just copy and Paste it)
+(or)
+
+YUM path is ftp://server1.example.com/pub/rhel//Server/
+
+Sol:
+
+# vim /etc/yum.repos.d/rhcsa.repo	(Any Name.repo)
+
+[rhcsa]
+
+name=Repo for RHCSA Exam
+baseurl=http://content.example.com/rhel7.0/x86_64/dvd
+gpgcheck=0
+enabled=1
+:wq
+
+# yum repolist
+
+Task 2:
+Install the appropriate kernel update from http://classroom.example.com/content/updates
+
+The following criteria must also be met:
+
+–>The updated kernel is the default kernel when the system rebooted.
+
+–>The original kernel remains available and bootable on the system
+
+
+(In Exam : http://server1.example.com/updates or ftp://server1.example.com/pub/updates/)
+
+Sol:
+
+To Install Kernel, Open the path using Firefox
+
+#firefox http://classroom.example.com/content/updates
+(It will open the path in Firefox  select kernel update rpm file  Right Click  Copy link location)
+
+# wget	(Paste the path using Mouse Middle Button)
+
+#	rpm -ivh kernel*
+# reboot		(optional we can reboot  after NTP Client Task 4)
+To Check:		
+			
+#yum  list	kernel	(To list all installed and available kernels)
+# uname	-rms	(Check before and after reboot)
+
+Task 3:
+
+configure SELINUX
+The machine should be running enforcing mode
+
+Sol:
+
+#vim  /etc/selinux/config
+
+SELINUX=enforcing
+:wq
+
+Task 4:
+
+Configure your system so that it is an NTP client of classroom.example.com
+
+Note: (In exam host.domainX.example.com)
+
+Sol:
+
+#yum install chrony -y
+
+#vim /etc/chrony.conf
+
+server classroom.example.com iburst	(Just copy and Paste the server line and comment above 4 lines)
+
+:wq
+
+#systemctl enable chronyd
+
+#systemctl restart chronyd
+
+#reboot	
+After reboot Check	
+#sestatus		(For Task 3)
+#yum  list kernel	(or)   uname  -rms   (for kernel updates)
+#chronyc sources	(For NTP Server info)
+
+TASK 5:
+
+create the following user, groups, and group memberships:
+
+–> A group named sysadmin
+–> A user saara who belongs to sysadmin as a secondary group
+–> A user natasha who also belongs to sysadmin as a secondary group
+–> A user harry who does not have access to an interactive shell on system and who not a member of sysadmin
+–> saara,natasha and harry should all have the password of “postroll”
+
+Sol:
+
+#groupadd sysadmin
+
+#useradd –G sysadmin saara
+
+#useradd –G sysadmin natasha
+
+#useradd -s /sbin/nologin harry
+
+
+To Check:
+
+#id saara
+
+#id natasha
+
+Task 6:
+
+Create a user deal with userid 2015. and assign the password redhat
+
+Sol:
+
+#	useradd -u 2015 deal
+#	passwd deal
+
+To Check:
+
+#id deal
+
+#tail  /etc/passwd
+
+Task 7:
+
+The user saara must configure a cron job that runs daily at 5:30PM localtime and executes /bin/echo hello.
+
+Sol:
+
+#	su - saara $ crontab -e
+
+30 17 *	*  *  /bin/echo  hello
+:wq		
+(Note: 24 hrs Clock ----	17:30  as min hr * * * <Given Message>,for help check cat /etc/crontab)
+To Check:		
+$crontab	-l	
+$exit		(Note: Don‟t Forget to Exit from user mode)
+
+Type 2:
+
+The user saara must configure a cron job that runs daily at 18:30 localtime and executes /sbin/echo hai.
+
+Sol:				
+#cp		/bin/echo	/sbin	(Note: It is /sbin/echo , Bydefault echo will be available in /bin/)
+# su	-	saara		
+$crontab -e		
+30	18	*	* *	/sbin/echo	Hai
+:wq						
+To Check:			
+$ crontab	-l		
+
+$exit	(Note: Don‟t Forget to Exit from user mode)
+
+
+Task 8:
+
+Restrict the user natasha to assign cron jobs
+
+Sol:
+
+#vim /etc/cron.deny
+
+natasha
+
+:wq
+
+To check:
+
+#su - natasha
+
+$crontab -l	... to check
+
+Task 9:
+
+create a collaborative directory /shared/sysadmin with the following characteristics:
+
+–> Group owneship of /shared/sysadmin is sysadmin
+
+–> The directory should be readable, writable, and accessible to members of sysadmin, but not to any other user.
+
+(It is understood that root has access to all files and directories on the system.
+
+–> Files created in /shared/sysadmin automatically have group ownership set to the sysadmin group
+
+Sol:
+
+#mkdir -p /shared/sysadmin
+
+#chgrp sysadmin  /shared/sysadmin
+#chmod 2770 /shared/sysadmin
+
+#ls -ld /shared/sysadmin
+
+Task 10:
+
+Configure your system
+
+Copy the file /etc/fstab to /var/tmp. Configure the permissions of /var/tmp/fstab so that:
+
+-	The file /var/tmp/fstab is owned by the root user.
+
+-	The file /var/tmp/fstab belongs to the group root.
+
+-	The file /var/tmp/fstab should not be executable by anyone.
+
+-	The user saara is able to read and write /var/tmp/fstab.
+
+-	The user natasha can neither write nor read /var/tmp/fstab.
+
+-	All other users (current and future) have the ability to read /var/tmp/fstab.
+
+Sol:
+
+#cp /etc/fstab /var/tmp/
+
+#ls -ld /var/tmp/fstab
+
+#setfacl -m u:saara:rw-  /var/tmp/fstab
+
+#setfacl -m u:natasha:- /var/tmp/fstab
+
+To Verify:
+
+#getfacl /var/tmp/fstab
+
+
+
+Task 11:
+
+a.	Search the files with extension .pl and copy the files to directory /root/pl.found
+
+b.	Find a .conf extension files in /etc and copy files to /search
+
+c.	Search student user files and copy the files to directory /root/student.found
+
+Sol:
+
+a)	# mkdir /root/pl.found
+
+#	find /  -name  *.pl  -exec  cp {} /root/pl.found/  \;
+
+b)	#mkdir /search
+
+# find	/etc	-name	*.conf	-exec  cp -a {} /search/	\;
+
+c)	#mkdir /root/student.found
+
+# find /  -user student  -exec cp -rpf {} /root/student.found/  \;
+
+Task 12:
+a. Search the keyword “sa” in /usr/share/dict/words file and store the lines in order in /root/sa.txt
+
+b. Search the keyword “sa” in /usr/share/dict/words file and store the lines in the same order /root/sa.found
+
+(or) Search the keyword “sa” in /usr/share/dict/words file and store the lines in original order /root/sa.found
+
+c. search the string saara in the /etc/passwd file and save the output in /root/lines
+
+Sol:					
+	a)	#grep	-i  sa  /usr/share/dict/words	|  sort  >/root/sa.txt	(in order)
+		#cat /root/sa.txt ..... to check			
+	b)	#grep	-i  sa /usr/share/dict/words	>/root/sa.found	(in the same order / original order)
+		#cat /root/sa.found ..... to check		
+
+c) #grep saara /etc/passwd	>/root/lines
+
+#cat /root/lines
+
+Task 13:
+
+a. Backup /usr/share directory to /root/usr.tar.gz	(or) /root/usr.tgz
+
+b. Backup /usr/share directory to /root/usr.tar.bz2
+
+c. Backup /usr/share directory to /root/usr.tar.xz
+
+Sol:
+
+Hint man tar)(Note: No need of  “-“ minus or hyphen)
+
+a) # tar	czvf	/root/usr.tar.gz	/usr/share	(or) tar  czvf	/root/usr.tgz	/usr/share
+b) # tar	cjvf	/root/usr.tar.bz2	/usr/share	(i.e bzip2)	(small	„j‟)
+c) # tar	cJvf	/root/usr.tar.xz	/usr/share		(Capital	„J‟)
+
+
+Note : Before doing the following Tasks in our Lab
+
+Create three primary partitions [2 Physical (1 GB Each) and 1 Swap (500 MB) and then mount persistently]
+
+
+Task 14:
+
+Add the SWAP Space with a size of 754 MiB
+
+Sol:
+
+#lsblk
+
+(You Can Find … /dev/sda (or) /dev/vda , In our Lab: /dev/vdb)
+
+(Use only Device Name , don’t use partition name while typing fdisk)
+
+#fdisk /dev/vdb
+
+p
+
+n
+
+:first sector ...enter
+
+:second sector  +754M
+
+:t
+
+:82
+
+:w ..... to save changes
+
+#partprobe /dev/vdb
+
+#lsblk
+
+(Identify newly created partition with 754MB…Identify “X”. Partition Name is important)
+ 
+
+#mkswap /dev/vdbX                ---> Make the swap on newly created Partition
+ 
+#swapon /dev/vdbX                ---> To enable SWAP
+ 
+#blkid
+
+Copy UUID from the Result
+
+#vim /etc/fstab
+
+PasteUUID   swap  swap  defaults 0 0 
+
+:wq
+ 
+
+#swapon -a         (To Activate SWAP from fstab entries)
+
+To Verify:
+
+#free -m (or) #swapon -s
+
+
+Task 15:
+
+Create a Logical Volume with the name share by using 100 Extents. From the volume group sharegroup of 8MiB extent size. And mount it under /mnt/share with ext3 File system. Sol:
+
+
+First Determine the Size : Calculate from cli
+
+#bc	(Press Enter)
+
+100*8 (Press Enter)
+
+800
+
+(800 MB, while creating add + 8 MB for Exact Size, Note : You can add +4 MB or +8 MB or +16 MB or +32 MB based on Extent Size))
+
+Quit
+
+
+#lsblk
+
+Step 1: Create Partition and change type to LVM (8e)
+
+
+#fdisk /dev/vdb
+
+p
+
+n
+
+:first sector ...enter
+
+:second sector +808M
+
+:t
+
+:8e
+
+:w ..... to save changes
+
+
+#partprobe /dev/vdb
+
+#lsblk	(Identify Newly created partition with 804MB)
+
+
+Step 2: Create LVM with the Name share
+
+
+#pvcreate /dev/vdbX
+
+
+#vgcreate sharegroup -s 8M /dev/vdbX
+
+(Note: Bydefault Physical Extent Size i.e PE is 4 MB )
+
+To Check:
+
+#vgdisplay sharegroup
+
+
+#lvcreate -n share -l 100 sharegroup
+
+(Note:In Question, Number Extents required 100)
+
+(Note: small l represent size in extents and Capital L represent size in MB)(Should be very careful)
+
+
+. To Check: #lvdisplay /dev/sharegroup/share (To check Size and info)
+
+
+Step 3: Write File System based on the Objective
+
+
+#mkfs.ext3 /dev/sharegroup/share
+
+#blkid
+
+Create Directory to mount on it:
+
+
+#mkdir /mnt/share
+
+#blkid
+
+Copy UUID from the Result
+
+#vim /etc/fstab
+ 
+
+PasteUUID  /mnt/share ext3 defaults  0 0
+
+:wq
+
+#mount -a
+ 
+
+To Check:
+
+#df -hT
+
+
+Task 16:
+
+Create a Logical volume vo with 250MB from a volume group myvol of 1000MB size.
+
+Mount it under /mnt/myvolume with ext4 file system persistently.
+
+#lsblk
+
+#fdisk /dev/vdb
+
+p
+
+n
+
+:first sector ...enter
+
+:second sector +1004M	(VG Fixed with 1000MB,so we have to use +4MB because default Extent Size)
+
+:t
+
+:8e
+
+:w ..... to save changes
+
+#partprobe /dev/vdb
+
+Check Newly created partition using #lsblk
+
+
+Note: Don’t Format the Partition because it is for Logical Volume
+
+#pvcreate /dev/vdbX
+
+#pvs
+
+#vgcreate myvol /dev/vdbX	(Default Extent Size is 4 MB)
+
+
+#vgs  or vgdisplay myvol
+
+#lvcreate -n vo -L 250M myvol
+
+#lvs or lvdisplay  /dev/myvol/vo
+
+#mkfs.ext4  /dev/myvol/vo
+
+#mkdir  /mnt/myvolume
+
+#blkid
+
+Copy UUID from the Result
+
+#vim /etc/fstab
+
+PasteUUID  /mnt/myvolume	ext4  defaults  0  0
+
+:wq
+
+#mount -a
+
+#df -hT
+
+
+
+
+
+Exam Environment
+
+Before Starting your Exam
+
+Fill the details as per Examiner Instructions (Don‟t be in Hurry, Fill Carefully)
+
+Note: Click Next Button / Finish Button after getting Confirmation from the Examiner …be cool
+
+Step 1:
+
+* Examiner will ask you to Register
+
+Your Name:
+E-mail: (Gmail ID Recommended)
+Postal  Address
+Agree for confidentiality agreement .i,e check boxes
+
+*	Next screen will provide confirmation Button with details (You can go back to edit if you want to modify any)
+
+Step 2:
+
+* Next screen will provide your Network , and user info with password .
+
+Imp Note: Just Note Down the info on given white Paper
+
+Eg:  domainX / networkX / groupX, username(s) and password(s)
+
+(Note: password is same or different for all the users).
+
+*	Next screen, after Examiner Instructions… System automatically reboots and displays Exam Icons on Foundation Machine.
+
+(Note: No root password will be provided for your physical machine, Don‟t Restart your Physical Machine, sit comfortably don‟t push cabinet or switches)
+
+Step 3:
+
+* Click Exam console icon that will be on the desktop to display
+
+Please use the following details to configure your candidate system.
+
+Assign root password	: redhat	(In Exam: the password would be different for each candidate)
+
+
+Use Static Ip only		
+IPADDR	: 172.25.X.11	
+NETMASK	: 255.255.255.0	
+DEFAULT GATEWAY	: 172.25.X.254	
+NAME SERVER	: 172.25.254.254	
+HOST NAME	: serverX.example.com	(In Exam : station.domainX.example.com)
+
+
+After the Completion of your network setup, Click Here to Get the Exam Paper (Link will be provided in Exam)
+
+(NOTE:- Until and unless you recover root password, configure static ip address, hostname and DNS details the remaining question paper cannot be viewed.)
+
+*	You Can Find VMs Small window appear on Desktop The Small Window Consists of
+*	stationstart/stop/reboot/view console/Rebuild VM Buttons
+
+
+Step 4:
+
+Click Start Button to start station
+
+Step 5:
+
+Click view console Button to view station logon screen
+
+Click Additional Information Link in Exam Paper, Note Imp info on your paper i.e Network and Users Passwords (It is very Important before reading Questions)
+
+
+
+
+
+
+
+
+
+
