@@ -23,3 +23,20 @@ int main ()
 # ./a.out
 
 
+ps aux | awk '$8 ~ /^[Zz]/'
+ps -o ppid= -p <child_id>
+ps -A -ostat,pid,ppid | grep -e '[zZ]'
+kill -9 <parent_process_ID>
+
+
+
+
+/....................................................../
+Load avarage test:
+
+yes > /dev/null &
+
+top
+
+
+
