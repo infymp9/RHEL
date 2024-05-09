@@ -1,0 +1,25 @@
+[root@ip-172-31-45-235 ~]# cat zombie.c
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int main ()
+{
+  pid_t child_pid;
+
+  child_pid = fork ();
+  if (child_pid > 0) {
+    sleep (240);
+  }
+  else {
+    exit (0);
+  }
+  return 0;
+}
+[root@ip-172-31-45-235 ~]#
+
+# gcc zombie.c
+
+# ./a.out
+
+
