@@ -693,6 +693,12 @@ Click Additional Information Link in Exam Paper, Note Imp info on your paper i.e
 
 
 
+ps aux | awk '$8 ~ /^[Zz]/'
+ps -o ppid= -p <child_id>
+ps -A -ostat,pid,ppid | grep -e '[zZ]'
+kill -9 <parent_process_ID>
+
+
 
 
 
